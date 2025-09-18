@@ -12,8 +12,8 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@rainbow-me/rainbowkit':
-        specifier: ^2.2.3
-        version: 2.2.3(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(wagmi@2.14.11(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.18)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(zod@3.24.1))
+        specifier: ^2.2.4
+        version: 2.2.4(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(wagmi@2.14.11(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.18)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(zod@3.24.1))
       '@tailwindcss/postcss':
         specifier: ^4.0.3
         version: 4.0.6
@@ -42,7 +42,7 @@ importers:
         specifier: ^4.0.3
         version: 4.0.6
       viem:
-        specifier: ^2.22.20
+        specifier: 2.x
         version: 2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
       wagmi:
         specifier: ^2.14.9
@@ -52,8 +52,8 @@ importers:
         specifier: 1.48.2
         version: 1.48.2
       '@synthetixio/synpress':
-        specifier: 4.0.5
-        version: 4.0.5(@depay/solana-web3.js@1.98.0)(@depay/web3-blockchains@9.8.0)(@playwright/test@1.48.2)(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
+        specifier: ^4.0.10
+        version: 4.1.1(@depay/solana-web3.js@1.98.0)(@depay/web3-blockchains@9.8.0)(@playwright/test@1.48.2)(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
       '@types/node':
         specifier: ^20.12.10
         version: 20.17.17
@@ -1223,8 +1223,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@rainbow-me/rainbowkit@2.2.3':
-    resolution: {integrity: sha512-kXZ+zmKSPZhZdNHey+4TwOIW4p2vIRv5B9+5FoTJv1xktru1RykfAAQY5z+nLUdvc0l6M5hiYH4X88Jl1foXGQ==}
+  '@rainbow-me/rainbowkit@2.2.4':
+    resolution: {integrity: sha512-LUYBcB5bzLf6/BMdnW3dEFHVqoPkTGcFN3u6WamaIHXuqD9HT+HVAeNlcYvKENBXldN2zNBs1Bt3k8Oy7y5bTw==}
     engines: {node: '>=12.4'}
     peerDependencies:
       '@tanstack/react-query': '>=5.0.0'
@@ -1425,32 +1425,37 @@ packages:
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
 
-  '@synthetixio/ethereum-wallet-mock@0.0.6':
-    resolution: {integrity: sha512-lEAXR9zEymRD7Krqa3QdVjuLvdD6/c1qsOIruXnzOx40BU3gZ228PQ2g+7w4J2F/P4+ofQ5cndkKrKXGhnFXXw==}
+  '@synthetixio/ethereum-wallet-mock@0.0.13':
+    resolution: {integrity: sha512-83YD/VEHEoEF4zB7O5jYAAWGq5Q+DM//oBrInTa+JFmG/MQdQaKDLDby3RPz7aQCoN42e1dLipfK6kn77ErliA==}
     peerDependencies:
-      '@playwright/test': 1.48.2
+      '@playwright/test': '*'
 
-  '@synthetixio/synpress-cache@0.0.6':
-    resolution: {integrity: sha512-6fwHeysfpjI09NFoO3sZ6SpA2T6Jr3JP0iY4A0IrISRFWg0j7CooQ9IIMYrW3tyuIoGBr1XlJWQN4ID8JqqIMw==}
+  '@synthetixio/synpress-cache@0.0.13':
+    resolution: {integrity: sha512-fKRz4Xq5a0IGzu4TMjrd7W6d+7W28RmoruqvwjmWLWBAJcsWgdUhLHWlS2o1/sRxLsDj2e4hq5nfsisOHShrsQ==}
     hasBin: true
     peerDependencies:
       playwright-core: 1.48.2
 
-  '@synthetixio/synpress-core@0.0.6':
-    resolution: {integrity: sha512-Q4XU0MdJ1IhUIin+fi2AQyxefPUV8oo9CmLNOx3Cy4DagjGkm6GqPRIHXFsnQ6x7asw+pIrO0SmylEoKFwyO/A==}
+  '@synthetixio/synpress-core@0.0.13':
+    resolution: {integrity: sha512-m0UPNN0s+o3KL0eGpilkna3wNYFHN3v49WsWKDRn/qslzAXJXgf26/w1f00z3gbcOjUY97i2FaieRLCsjF4sOg==}
+    peerDependencies:
+      '@playwright/test': '*'
+
+  '@synthetixio/synpress-metamask@0.0.13':
+    resolution: {integrity: sha512-DzGF5CXJSQSF0+ELzqAxssReKSBCrQT1I/sGb9fntkVUWLfYrkNL+idxSLR3Abv9IBrthmDlUwiWMXDlvf6iZQ==}
+    peerDependencies:
+      '@playwright/test': '*'
+
+  '@synthetixio/synpress-phantom@0.0.13':
+    resolution: {integrity: sha512-+vo0IeKz+i6JTuJCk0pCUP77v6eBB8aM5RxzWBXVXtzHmgBpKYnYJTSQyz11IDUbzjOfYLadls2fO6pYTGtfdA==}
     peerDependencies:
       '@playwright/test': 1.48.2
 
-  '@synthetixio/synpress-metamask@0.0.6':
-    resolution: {integrity: sha512-/3P5EK611ZYknDZzim8qjkDemhofhlyIl8wVI9H5lxz9KnPsVYDxcJe2k/n7Ii8bZa56vBXngFIFokQYnoqQoQ==}
-    peerDependencies:
-      '@playwright/test': 1.48.2
-
-  '@synthetixio/synpress@4.0.5':
-    resolution: {integrity: sha512-pyfgNXR3BwIz8hcTvGK7aaafoWWW7nCCEvhcCRm6ue+YOYCvT1P/wCIJ6RH1GXspjl6TZ674qC6ia3AiWzobLw==}
+  '@synthetixio/synpress@4.1.1':
+    resolution: {integrity: sha512-mfmkXWgVKzniMt8fKDLqyRAKM2b4JG78moeEcf0fyickTpzwH+WeYrPwgZdQCVLOruUeJg1pbDmmcgZFfytuVw==}
     hasBin: true
     peerDependencies:
-      '@playwright/test': 1.48.2
+      '@playwright/test': '*'
 
   '@tailwindcss/node@4.0.6':
     resolution: {integrity: sha512-jb6E0WeSq7OQbVYcIJ6LxnZTeC4HjMvbzFBMCrQff4R50HBlo/obmYNk6V2GCUXDeqiXtvtrQgcIbT+/boB03Q==}
@@ -2565,6 +2570,9 @@ packages:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
 
+  immediate@3.0.6:
+    resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
+
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
     deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
@@ -2720,12 +2728,18 @@ packages:
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
+  jszip@3.10.1:
+    resolution: {integrity: sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==}
+
   keccak@3.0.4:
     resolution: {integrity: sha512-3vKuW0jV8J3XNTzvfyicFR5qvxrSAGl7KIhvgOu5cmWwM7tZRj3fMbj/pfIf4be7aznbc+prBWGjywox/g2Y6Q==}
     engines: {node: '>=10.0.0'}
 
   keyvaluestorage-interface@1.0.0:
     resolution: {integrity: sha512-8t6Q3TclQ4uZynJY9IGr2+SsIGwK9JHcO6ootkHCGA0CrQCRy+VkouYNO2xicET6b9al7QKzpebNow+gkpCL8g==}
+
+  lie@3.3.0:
+    resolution: {integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==}
 
   lightningcss-darwin-arm64@1.29.1:
     resolution: {integrity: sha512-HtR5XJ5A0lvCqYAoSv2QdZZyoHNttBpa5EP9aNuzBQeKGfbyH5+UipLWvVzpP4Uml5ej4BYs5I9Lco9u1fECqw==}
@@ -3074,6 +3088,9 @@ packages:
 
   package-json-from-dist@1.0.1:
     resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
+
+  pako@1.0.11:
+    resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
 
   parse5@7.2.1:
     resolution: {integrity: sha512-BuBYQYlv1ckiPdQi/ohiivi9Sagc9JG+Ozs0r7b/0iK3sKmrb0b9FdWdBbOdx6hBCM/F9Ir82ofnBhtZOjCRPQ==}
@@ -3488,6 +3505,7 @@ packages:
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
+    deprecated: The work that was done in this beta branch won't be included in future versions
 
   split-on-first@1.1.0:
     resolution: {integrity: sha512-43ZssAJaMusuKWL8sKUBQXHWOpq8d6CfN/u1p4gUzfJkM05C8rxTmYrkIPTXapZpORA6LkkzcUulJ8FqA7Uudw==}
@@ -3783,6 +3801,9 @@ packages:
         optional: true
       uploadthing:
         optional: true
+
+  unzip-crx-3@0.2.0:
+    resolution: {integrity: sha512-0+JiUq/z7faJ6oifVB5nSwt589v1KCduqIJupNVDoWSXZtWDmjDGO3RAEOvwJ07w90aoXoP4enKsR7ecMrJtWQ==}
 
   unzipper@0.10.14:
     resolution: {integrity: sha512-ti4wZj+0bQTiX2KmKWuwj7lhV+2n//uXEotUmGuQqrbVZSEGFMbI68+c6JCQ8aAmUWYvtHEz2A8K6wXvueR/6g==}
@@ -4101,6 +4122,9 @@ packages:
 
   y18n@4.0.3:
     resolution: {integrity: sha512-JKhqTOwSrqNA1NY5lSztJ1GrBiUodLMmIZuLiDaMRJ+itFd+ABVE8XBjOvIWL+rSqNDC74LCSFmlb/U4UZ4hJQ==}
+
+  yaku@0.16.7:
+    resolution: {integrity: sha512-Syu3IB3rZvKvYk7yTiyl1bo/jiEFaaStrgv1V2TIJTqYPStSMQVO8EQjg/z+DRzLq/4LIIharNT3iH1hylEIRw==}
 
   yaml@2.7.0:
     resolution: {integrity: sha512-+hSoy/QHluxmC9kCIJyL/uyFmLmc+e5CFR5Wa+bpIhIj85LVb9ZH2nVnqrHoSvKogwODv0ClqZkmiSSaIH5LTA==}
@@ -5242,7 +5266,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.18
 
-  '@rainbow-me/rainbowkit@2.2.3(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(wagmi@2.14.11(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.18)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(zod@3.24.1))':
+  '@rainbow-me/rainbowkit@2.2.4(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(wagmi@2.14.11(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.18)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(zod@3.24.1))':
     dependencies:
       '@tanstack/react-query': 5.45.1(react@18.3.1)
       '@vanilla-extract/css': 1.15.5
@@ -5464,13 +5488,13 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@synthetixio/ethereum-wallet-mock@0.0.6(@depay/solana-web3.js@1.98.0)(@depay/web3-blockchains@9.8.0)(@playwright/test@1.48.2)(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)':
+  '@synthetixio/ethereum-wallet-mock@0.0.13(@depay/solana-web3.js@1.98.0)(@depay/web3-blockchains@9.8.0)(@playwright/test@1.48.2)(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)':
     dependencies:
       '@depay/web3-client': 10.18.6(@depay/solana-web3.js@1.98.0)(@depay/web3-blockchains@9.8.0)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@depay/web3-mock': 14.19.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@depay/web3-mock-evm': 14.19.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@playwright/test': 1.48.2
-      '@synthetixio/synpress-core': 0.0.6(@playwright/test@1.48.2)
+      '@synthetixio/synpress-core': 0.0.13(@playwright/test@1.48.2)
       viem: 2.9.9(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
     transitivePeerDependencies:
       - '@depay/solana-web3.js'
@@ -5481,7 +5505,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@synthetixio/synpress-cache@0.0.6(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)':
+  '@synthetixio/synpress-cache@0.0.13(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)':
     dependencies:
       axios: 1.6.7
       chalk: 5.3.0
@@ -5493,6 +5517,7 @@ snapshots:
       playwright-core: 1.48.2
       progress: 2.0.3
       tsup: 8.0.2(postcss@8.5.2)(typescript@5.7.3)
+      unzip-crx-3: 0.2.0
       unzipper: 0.10.14
       zod: 3.22.4
     transitivePeerDependencies:
@@ -5504,15 +5529,15 @@ snapshots:
       - ts-node
       - typescript
 
-  '@synthetixio/synpress-core@0.0.6(@playwright/test@1.48.2)':
+  '@synthetixio/synpress-core@0.0.13(@playwright/test@1.48.2)':
     dependencies:
       '@playwright/test': 1.48.2
 
-  '@synthetixio/synpress-metamask@0.0.6(@playwright/test@1.48.2)(bufferutil@4.0.9)(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)(utf-8-validate@5.0.10)':
+  '@synthetixio/synpress-metamask@0.0.13(@playwright/test@1.48.2)(bufferutil@4.0.9)(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@playwright/test': 1.48.2
-      '@synthetixio/synpress-cache': 0.0.6(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)
-      '@synthetixio/synpress-core': 0.0.6(@playwright/test@1.48.2)
+      '@synthetixio/synpress-cache': 0.0.13(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)
+      '@synthetixio/synpress-core': 0.0.13(@playwright/test@1.48.2)
       '@viem/anvil': 0.0.7(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       fs-extra: 11.2.0
       zod: 3.22.4
@@ -5528,13 +5553,34 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@synthetixio/synpress@4.0.5(@depay/solana-web3.js@1.98.0)(@depay/web3-blockchains@9.8.0)(@playwright/test@1.48.2)(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)':
+  '@synthetixio/synpress-phantom@0.0.13(@playwright/test@1.48.2)(bufferutil@4.0.9)(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@playwright/test': 1.48.2
-      '@synthetixio/ethereum-wallet-mock': 0.0.6(@depay/solana-web3.js@1.98.0)(@depay/web3-blockchains@9.8.0)(@playwright/test@1.48.2)(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
-      '@synthetixio/synpress-cache': 0.0.6(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)
-      '@synthetixio/synpress-core': 0.0.6(@playwright/test@1.48.2)
-      '@synthetixio/synpress-metamask': 0.0.6(@playwright/test@1.48.2)(bufferutil@4.0.9)(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)(utf-8-validate@5.0.10)
+      '@synthetixio/synpress-cache': 0.0.13(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)
+      '@synthetixio/synpress-core': 0.0.13(@playwright/test@1.48.2)
+      '@viem/anvil': 0.0.7(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      fs-extra: 11.2.0
+      zod: 3.22.4
+    transitivePeerDependencies:
+      - '@microsoft/api-extractor'
+      - '@swc/core'
+      - bufferutil
+      - debug
+      - playwright-core
+      - postcss
+      - supports-color
+      - ts-node
+      - typescript
+      - utf-8-validate
+
+  '@synthetixio/synpress@4.1.1(@depay/solana-web3.js@1.98.0)(@depay/web3-blockchains@9.8.0)(@playwright/test@1.48.2)(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)':
+    dependencies:
+      '@playwright/test': 1.48.2
+      '@synthetixio/ethereum-wallet-mock': 0.0.13(@depay/solana-web3.js@1.98.0)(@depay/web3-blockchains@9.8.0)(@playwright/test@1.48.2)(bufferutil@4.0.9)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
+      '@synthetixio/synpress-cache': 0.0.13(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)
+      '@synthetixio/synpress-core': 0.0.13(@playwright/test@1.48.2)
+      '@synthetixio/synpress-metamask': 0.0.13(@playwright/test@1.48.2)(bufferutil@4.0.9)(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)(utf-8-validate@5.0.10)
+      '@synthetixio/synpress-phantom': 0.0.13(@playwright/test@1.48.2)(bufferutil@4.0.9)(playwright-core@1.48.2)(postcss@8.5.2)(typescript@5.7.3)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - '@depay/solana-web3.js'
       - '@depay/web3-blockchains'
@@ -6278,7 +6324,7 @@ snapshots:
     dependencies:
       ansi-align: 3.0.1
       camelcase: 7.0.1
-      chalk: 5.0.1
+      chalk: 5.3.0
       cli-boxes: 3.0.0
       string-width: 5.1.2
       type-fest: 2.19.0
@@ -6852,7 +6898,7 @@ snapshots:
 
   extension-port-stream@3.0.0:
     dependencies:
-      readable-stream: 3.6.2
+      readable-stream: 4.7.0
       webextension-polyfill: 0.10.0
 
   fast-copy@3.0.2: {}
@@ -7092,6 +7138,8 @@ snapshots:
 
   ignore@5.3.2: {}
 
+  immediate@3.0.6: {}
+
   inflight@1.0.6:
     dependencies:
       once: 1.4.0
@@ -7255,6 +7303,13 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
+  jszip@3.10.1:
+    dependencies:
+      lie: 3.3.0
+      pako: 1.0.11
+      readable-stream: 2.3.8
+      setimmediate: 1.0.5
+
   keccak@3.0.4:
     dependencies:
       node-addon-api: 2.0.2
@@ -7262,6 +7317,10 @@ snapshots:
       readable-stream: 3.6.2
 
   keyvaluestorage-interface@1.0.0: {}
+
+  lie@3.3.0:
+    dependencies:
+      immediate: 3.0.6
 
   lightningcss-darwin-arm64@1.29.1:
     optional: true
@@ -7565,6 +7624,8 @@ snapshots:
   p-try@2.2.0: {}
 
   package-json-from-dist@1.0.1: {}
+
+  pako@1.0.11: {}
 
   parse5@7.2.1:
     dependencies:
@@ -8226,6 +8287,12 @@ snapshots:
     optionalDependencies:
       idb-keyval: 6.2.1
 
+  unzip-crx-3@0.2.0:
+    dependencies:
+      jszip: 3.10.1
+      mkdirp: 0.5.6
+      yaku: 0.16.7
+
   unzipper@0.10.14:
     dependencies:
       big-integer: 1.6.52
@@ -8562,6 +8629,8 @@ snapshots:
   xtend@4.0.2: {}
 
   y18n@4.0.3: {}
+
+  yaku@0.16.7: {}
 
   yaml@2.7.0: {}
 
