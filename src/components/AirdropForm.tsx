@@ -11,12 +11,15 @@ import {
 } from "wagmi"
 import { chainsToTSender, tsenderAbi, erc20Abi } from "@/constants"
 import { readContract } from "@wagmi/core"
-import { useConfig } from "wagmi"
-import { CgSpinner } from "react-icons/cg"
+import { useConfig, usePublicClient } from "wagmi"
+// Spinner handled in TxButton
 import { calculateTotal, formatTokenAmount } from "@/utils"
 import { InputForm } from "./ui/InputField"
 import { Tabs, TabsList, TabsTrigger } from "./ui/Tabs"
 import { waitForTransactionReceipt } from "@wagmi/core"
+import { TxButton } from "./ui/TxButton"
+import { useWagmiTxPhase } from "@/hooks/useWagmiTxPhase"
+import { isAddress } from "viem"
 
 interface AirdropFormProps {
     isUnsafeMode: boolean
@@ -30,25 +33,30 @@ export default function AirdropForm({ isUnsafeMode, onModeChange }: AirdropFormP
     const config = useConfig()
     const account = useAccount()
     const chainId = useChainId()
+    const publicClient = usePublicClient({ chainId })
     const { data: tokenData } = useReadContracts({
         contracts: [
             {
                 abi: erc20Abi,
-                address: tokenAddress as `0x${string}`,
+                address: isAddress(tokenAddress) ? (tokenAddress as `0x${string}`) : undefined,
                 functionName: "decimals",
+                chainId,
             },
             {
                 abi: erc20Abi,
-                address: tokenAddress as `0x${string}`,
+                address: isAddress(tokenAddress) ? (tokenAddress as `0x${string}`) : undefined,
                 functionName: "name",
+                chainId,
             },
             {
                 abi: erc20Abi,
-                address: tokenAddress as `0x${string}`,
+                address: isAddress(tokenAddress) ? (tokenAddress as `0x${string}`) : undefined,
                 functionName: "balanceOf",
-                args: [account.address],
+                args: account.address ? [account.address] : undefined,
+                chainId,
             },
         ],
+        query: { enabled: isAddress(tokenAddress) },
     })
     const [hasEnoughTokens, setHasEnoughTokens] = useState(true)
 
@@ -60,96 +68,247 @@ export default function AirdropForm({ isUnsafeMode, onModeChange }: AirdropFormP
 
     const total: number = useMemo(() => calculateTotal(amounts), [amounts])
 
+    // Map wagmi states to generic phases for UI
+    const { phase, isBusy } = useWagmiTxPhase({
+        isPending,
+        isConfirming,
+        isSuccess: isConfirmed,
+        isError: Boolean(error) || isError,
+    })
+
+    // track current logical step to customize labels
+    const [txStep, setTxStep] = useState<"approve" | "airdrop" | null>(null)
+
 
     async function handleSubmit() {
         const contractType = isUnsafeMode ? "no_check" : "tsender"
         const tSenderAddress = chainsToTSender[chainId][contractType]
-        const result = await getApprovedAmount(tSenderAddress)
+        const recipientsArray = recipients.split(/[\,\n]+/).map(a => a.trim()).filter(Boolean)
+        const amountsArray = amounts.split(/[\,\n]+/).map(a => a.trim()).filter(Boolean)
+        console.groupCollapsed("[TSender] Airdrop submit")
+        console.log("chainId:", chainId)
+        console.log("owner:", account.address)
+        console.log("token:", tokenAddress)
+        console.log("tSender:", tSenderAddress)
+        console.log("recipients:", recipientsArray.length)
+        console.log("amounts:", amountsArray.length)
+        console.log("total:", String(BigInt(total)))
+        const sampleCount = Math.min(3, recipientsArray.length, amountsArray.length)
+        if (sampleCount > 0) {
+            const samples = Array.from({ length: sampleCount }, (_, i) => ({
+                index: i,
+                recipient: recipientsArray[i],
+                amount: amountsArray[i],
+            }))
+            console.table(samples)
+        }
 
-        if (result < total) {
+            // Safe mode: bytecode precheck to ensure current RPC has code
+            if (!isUnsafeMode && isAddress(tokenAddress)) {
+                try {
+                    const codeByPublic = await publicClient?.getBytecode({ address: tokenAddress as `0x${string}` }).catch(() => null)
+                    if (!codeByPublic) {
+                        console.error("[TSender] No bytecode at token on current RPC. Ensure RainbowKit network uses the same Anvil RPC as deployment. Abort (safe mode).")
+                        console.groupEnd()
+                        return
+                    }
+                } catch (e) {
+                    console.warn("[TSender] Bytecode precheck failed:", e)
+                }
+            }
+
+        // Decimals unreadable: warn but continue; rely on allowance logic
+        const hasDecimals = Boolean(tokenData?.[0]?.result)
+        if (!hasDecimals) {
+            console.warn("[TSender] Token decimals unreadable. Proceeding; will rely on allowance check.")
+        }
+
+        // Sample: read before balances for first 3 recipients
+        const sampleRecipients = recipientsArray.slice(0, sampleCount)
+        const beforeBalances = await Promise.all<bigint>(
+            sampleRecipients.map((addr) =>
+                (readContract(config, {
+                    abi: erc20Abi,
+                    address: tokenAddress as `0x${string}`,
+                    functionName: "balanceOf",
+                    args: [addr as `0x${string}`],
+                    chainId,
+                }) as Promise<bigint>).catch(() => BigInt(0))
+            )
+        )
+        const approved = await getApprovedAmount(tSenderAddress)
+
+        // Helper to send the airdrop call
+        const sendAirdrop = async () => {
+            setTxStep("airdrop")
+            console.log("Submitting airdrop tx...")
+            const airdropHash = await writeContractAsync({
+                abi: tsenderAbi,
+                address: tSenderAddress as `0x${string}`,
+                functionName: "airdropERC20",
+                args: [
+                    tokenAddress,
+                    recipientsArray,
+                    amountsArray,
+                    BigInt(total),
+                ],
+            })
+            console.log("Airdrop tx submitted:", airdropHash)
+            return airdropHash
+        }
+
+        // If allowance unreadable:
+        //  - Safe mode: abort
+        //  - Unsafe mode: try airdrop-first; if it fails, fallback to approve+airdrop
+        if (approved === null) {
+            if (!isUnsafeMode) {
+                console.error("[TSender] Allowance unreadable. Abort (safe mode).")
+                console.groupEnd()
+                return
+            }
+            console.log("Allowance unknown (read failed). Trying airdrop-first (unsafe mode)...")
+            try {
+                const hash = await sendAirdrop()
+                const receipt = await waitForTransactionReceipt(config, { hash })
+                console.log("[TSender] Final tx confirmed:", receipt.transactionHash)
+                await logSampleDeltas({
+                    config,
+                    chainId,
+                    tokenAddress: tokenAddress as `0x${string}`,
+                    recipients: sampleRecipients,
+                    beforeBalances,
+                    amounts: amountsArray.slice(0, sampleRecipients.length),
+                })
+                console.groupEnd()
+                return
+            } catch {
+                console.log("Airdrop-first failed. Will approve then retry.")
+            }
+        }
+
+        if (approved === null || approved < BigInt(total)) {
+            console.log("Allowance insufficient. Approving:", String(BigInt(total)))
+            setTxStep("approve")
             const approvalHash = await writeContractAsync({
                 abi: erc20Abi,
                 address: tokenAddress as `0x${string}`,
                 functionName: "approve",
                 args: [tSenderAddress as `0x${string}`, BigInt(total)],
             })
-            const approvalReceipt = await waitForTransactionReceipt(config, {
-                hash: approvalHash,
-            })
-
-            console.log("Approval confirmed:", approvalReceipt)
-
-            await writeContractAsync({
-                abi: tsenderAbi,
-                address: tSenderAddress as `0x${string}`,
-                functionName: "airdropERC20",
-                args: [
-                    tokenAddress,
-                    // Comma or new line separated
-                    recipients.split(/[,\n]+/).map(addr => addr.trim()).filter(addr => addr !== ''),
-                    amounts.split(/[,\n]+/).map(amt => amt.trim()).filter(amt => amt !== ''),
-                    BigInt(total),
-                ],
+            console.log("Approval tx submitted:", approvalHash)
+            await waitForTransactionReceipt(config, { hash: approvalHash })
+            console.log("Approval confirmed")
+            const hash = await sendAirdrop()
+            const receipt = await waitForTransactionReceipt(config, { hash })
+            console.log("[TSender] Final tx confirmed:", receipt.transactionHash)
+            await logSampleDeltas({
+                config,
+                chainId,
+                tokenAddress: tokenAddress as `0x${string}`,
+                recipients: sampleRecipients,
+                beforeBalances,
+                amounts: amountsArray.slice(0, sampleRecipients.length),
             })
         } else {
-            await writeContractAsync({
-                abi: tsenderAbi,
-                address: tSenderAddress as `0x${string}`,
-                functionName: "airdropERC20",
-                args: [
-                    tokenAddress,
-                    // Comma or new line separated
-                    recipients.split(/[,\n]+/).map(addr => addr.trim()).filter(addr => addr !== ''),
-                    amounts.split(/[,\n]+/).map(amt => amt.trim()).filter(amt => amt !== ''),
-                    BigInt(total),
-                ],
-            },)
+            console.log("Allowance sufficient. Skipping approve.")
+            const hash = await sendAirdrop()
+            const receipt = await waitForTransactionReceipt(config, { hash })
+            console.log("[TSender] Final tx confirmed:", receipt.transactionHash)
+            await logSampleDeltas({
+                config,
+                chainId,
+                tokenAddress: tokenAddress as `0x${string}`,
+                recipients: sampleRecipients,
+                beforeBalances,
+                amounts: amountsArray.slice(0, sampleRecipients.length),
+            })
         }
-
+        console.groupEnd()
     }
 
-    async function getApprovedAmount(tSenderAddress: string | null): Promise<number> {
+    async function getApprovedAmount(
+        tSenderAddress: string | null,
+    ): Promise<bigint | null> {
         if (!tSenderAddress) {
             alert("This chain only has the safer version!")
-            return 0
+            return BigInt(0)
         }
-        const response = await readContract(config, {
-            abi: erc20Abi,
-            address: tokenAddress as `0x${string}`,
-            functionName: "allowance",
-            args: [account.address, tSenderAddress as `0x${string}`],
-        })
-        return response as number
+        if (!isAddress(tokenAddress) || !account.address) {
+            return BigInt(0)
+        }
+        try {
+            console.debug("[TSender] Reading allowance", {
+                owner: account.address,
+                spender: tSenderAddress,
+                token: tokenAddress,
+                chainId,
+            })
+            const response = await readContract(config, {
+                abi: erc20Abi,
+                address: tokenAddress as `0x${string}`,
+                functionName: "allowance",
+                args: [account.address as `0x${string}`, tSenderAddress as `0x${string}`],
+                chainId,
+            })
+            const value = response as bigint
+            console.debug("[TSender] Allowance value:", String(value))
+            return value
+        } catch (e) {
+            // Quiet warning and signal unknown by returning null
+            console.warn("[TSender] Allowance read failed (possibly non-ERC20 or wrong chain). Trying airdrop first.", e)
+            return null
+        }
     }
 
-    function getButtonContent() {
-        if (isPending)
-            return (
-                <div className="flex items-center justify-center gap-2 w-full">
-                    <CgSpinner className="animate-spin" size={20} />
-                    <span>Confirming in wallet...</span>
-                </div>
+    // Log sampled recipients' balance deltas (first few) to verify transfers
+    async function logSampleDeltas(params: {
+        config: ReturnType<typeof useConfig>
+        chainId: number
+        tokenAddress: `0x${string}`
+        recipients: string[]
+        beforeBalances: bigint[]
+        amounts: string[]
+    }) {
+        const { config, chainId, tokenAddress, recipients, beforeBalances, amounts } = params
+        if (recipients.length === 0) return
+        const afterBalances = await Promise.all<bigint>(
+            recipients.map((addr) =>
+                (readContract(config, {
+                    abi: erc20Abi,
+                    address: tokenAddress,
+                    functionName: "balanceOf",
+                    args: [addr as `0x${string}`],
+                    chainId,
+                }) as Promise<bigint>).catch(() => BigInt(0))
             )
-        if (isConfirming)
-            return (
-                <div className="flex items-center justify-center gap-2 w-full">
-                    <CgSpinner className="animate-spin" size={20} />
-                    <span>Waiting for transaction to be included...</span>
-                </div>
-            )
-        if (error || isError) {
-            console.log(error)
-            return (
-                <div className="flex items-center justify-center gap-2 w-full">
-                    <span>Error, see console.</span>
-                </div>
-            )
+        )
+        const rows = recipients.map((r, i) => {
+            const before = beforeBalances[i] ?? BigInt(0)
+            const after = afterBalances[i] ?? BigInt(0)
+            const delta = after - before
+            return {
+                index: i,
+                recipient: r,
+                amountInput: amounts[i],
+                before: before.toString(),
+                after: after.toString(),
+                delta: delta.toString(),
+            }
+        })
+        console.table(rows)
+        const anyChanged = rows.some((r) => r.delta !== "0")
+        if (!anyChanged) {
+            console.warn("[TSender] No sampled balance changed. Verify token is ERC-20 on this chain and inputs are correct.")
         }
-        if (isConfirmed) {
-            return "Transaction confirmed."
-        }
-        return isUnsafeMode ? "Send Tokens (Unsafe)" : "Send Tokens"
     }
+
+    // Reset step after finish
+    useEffect(() => {
+        if (isConfirmed) {
+            console.log("[TSender] Final tx confirmed:", hash)
+        }
+        if (isConfirmed || isError) setTxStep(null)
+    }, [isConfirmed, isError, hash])
 
     useEffect(() => {
         const savedTokenAddress = localStorage.getItem('tokenAddress')
@@ -174,13 +333,14 @@ export default function AirdropForm({ isUnsafeMode, onModeChange }: AirdropFormP
     }, [amounts])
 
     useEffect(() => {
-        if (tokenAddress && total > 0 && tokenData?.[2]?.result as number !== undefined) {
-            const userBalance = tokenData?.[2].result as number;
-            setHasEnoughTokens(userBalance >= total);
+        const balanceResult = tokenData?.[2]?.result as unknown
+        if (isAddress(tokenAddress) && total > 0 && typeof balanceResult !== "undefined") {
+            const userBalance = BigInt(balanceResult as any)
+            setHasEnoughTokens(userBalance >= BigInt(total))
         } else {
-            setHasEnoughTokens(true);
+            setHasEnoughTokens(true)
         }
-    }, [tokenAddress, total, tokenData]);
+    }, [tokenAddress, total, tokenData])
 
     return (
         <div
@@ -268,28 +428,19 @@ export default function AirdropForm({ isUnsafeMode, onModeChange }: AirdropFormP
                     </div>
                 )}
 
-                <button
+                <TxButton
+                    phase={phase === "success" ? "idle" : phase}
+                    onClick={handleSubmit}
+                    disabled={isBusy || (!hasEnoughTokens && tokenAddress !== "")}
+                    blockedLabel={!hasEnoughTokens && tokenAddress ? "Insufficient token balance" : undefined}
+                    idleLabel={isUnsafeMode ? "Send Tokens (Unsafe)" : "Send Tokens"}
+                    walletLabel={txStep === "approve" ? "Confirming approval in wallet..." : "Confirming in wallet..."}
+                    miningLabel={txStep === "approve" ? "Approving token..." : "Waiting for transaction to be included..."}
                     className={`cursor-pointer flex items-center justify-center w-full py-3 rounded-[9px] text-white transition-colors font-semibold relative border ${isUnsafeMode
                         ? "bg-red-500 hover:bg-red-600 border-red-500"
                         : "bg-blue-500 hover:bg-blue-600 border-blue-500"
                         } ${!hasEnoughTokens && tokenAddress ? "opacity-50 cursor-not-allowed" : ""}`}
-                    onClick={handleSubmit}
-                    disabled={isPending || (!hasEnoughTokens && tokenAddress !== "")}
-                >
-                    {/* Gradient */}
-                    <div className="absolute w-full inset-0 bg-gradient-to-b from-white/25 via-80% to-transparent mix-blend-overlay z-10 rounded-lg" />
-                    {/* Inner shadow */}
-                    <div className="absolute w-full inset-0 mix-blend-overlay z-10 inner-shadow rounded-lg" />
-                    {/* White inner border */}
-                    <div className="absolute w-full inset-0 mix-blend-overlay z-10 border-[1.5px] border-white/20 rounded-lg" />
-                    {isPending || error || isConfirming
-                        ? getButtonContent()
-                        : !hasEnoughTokens && tokenAddress
-                            ? "Insufficient token balance"
-                            : isUnsafeMode
-                                ? "Send Tokens (Unsafe)"
-                                : "Send Tokens"}
-                </button>
+                />
             </div>
         </div>
     )

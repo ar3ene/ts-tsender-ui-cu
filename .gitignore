@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+/foundry
 
 # testing
 /coverage
@@ -45,3 +46,6 @@ node_modules/
 .fleek/*
 .env 
 .env.enc
+
+foundry.lock
+.gitmodules
